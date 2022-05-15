@@ -11,7 +11,7 @@ module BRAM_32x32(
 	input [31:0] DIADI,
 	input [9:0] ADDRBWRADDR,
 	input ENBWREN,
-	output [31:0] DOADO,
+	//output [31:0] DOADO,
 	output [31:0] DOBDO
 );
 
@@ -210,7 +210,7 @@ RAMB36E1 #(
 	.RDADDRECC(), // 9-bit output: ECC read address
 	.SBITERR(), // 1-bit output: Single bit error status
 	// Port A Data: 32-bit (each) output: Port A data
-	.DOADO(DOADO), // 32-bit output: A port data/LSB data
+	.DOADO(0), // 32-bit output: A port data/LSB data
 	.DOPADOP(), // 4-bit output: A port parity/LSB parity
 	// Port B Data: 32-bit (each) output: Port B data
 	.DOBDO(DOBDO), // 32-bit output: B port data/MSB data
