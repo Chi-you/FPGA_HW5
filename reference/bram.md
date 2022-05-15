@@ -45,8 +45,6 @@ in this configuration.
 
 #### Port Descriptions
 
-![Block_RAM_Port_Signals](images/Block_RAM_Port_Signals.png) 
-
 |Port       |Direction   |Width          |Function |
 |-----------|-------     |---------------|---------|
 |ADDRARDADDR<15:0>|Input|16|Port A address input bus/Read address input bus.|
