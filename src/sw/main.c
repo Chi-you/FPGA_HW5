@@ -8,7 +8,7 @@ u32 get_inst(u32 bram0_raddr, u32 bram1_raddr, u32 bram1_waddr, u32 opmode_Z, u3
     inst += bram1_raddr << 5;
     inst += bram1_waddr << 10;
     inst += 0b10001     << 15; // inmode
-	inst += 0b0101      << 20; // {opmode_Y, opmode_X} = 0b0101 => M
+    inst += 0b0101      << 20; // {opmode_Y, opmode_X} = 0b0101 => M
     inst += opmode_Z    << 24; // 0b011: Z => C
     inst += alumode     << 27;
     inst += 1           << 31;
@@ -16,7 +16,7 @@ u32 get_inst(u32 bram0_raddr, u32 bram1_raddr, u32 bram1_waddr, u32 opmode_Z, u3
 }
 
 int main() {
-	printf("\r\nHW 5-1 Program Start.\r\n");
+    printf("\r\nHW 5-1 Program Start.\r\n");
     u32 inst = 0;
     
     inst = get_inst(0, 2, 3, 0b000, 0b0000);   // BRAM1[3] <= BRAM0[0] * BRAM1[2]
@@ -62,6 +62,6 @@ int main() {
         u32 bram1_read = Xil_In32(XPAR_AXI_GPIO_1_BASEADDR + i); // maybe wrong
         printf("BRAM1[%d] = 0x%x\n", i, bram1_read);
     }
-	printf("\r\nHW 5-1 Program Done.\r\n");
+    printf("\r\nHW 5-1 Program Done.\r\n");
     return 0;
 }
