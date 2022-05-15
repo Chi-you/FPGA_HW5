@@ -1,7 +1,7 @@
-module dsp_direct(
+module DSP(
 	input clk,
-	input [29:0] A,
-	input [17:0] B,
+	input [31:0] A,
+	input [31:0] B,
 	input [4:0] INMODE,
 	input [3:0] ALUMODE,
 	input [6:0] OPMODE,
@@ -24,11 +24,11 @@ DSP48E1 #(
 	.SEL_PATTERN("PATTERN"), // Select pattern value ("PATTERN" or "C")
 	.USE_PATTERN_DETECT("NO_PATDET"), // Enable pattern detect ("PATDET" or "NO_PATDET")
 	// Register Control Attributes: Pipeline Register Configuration
-	.ACASCREG(1), // Number of pipeline stages between A/ACIN and ACOUT (0, 1 or 2)
+	.ACASCREG(0), // Number of pipeline stages between A/ACIN and ACOUT (0, 1 or 2)
 	.ADREG(0), // Number of pipeline stages for pre-adder (0 or 1)
 	.ALUMODEREG(1), // Number of pipeline stages for ALUMODE (0 or 1)
 	.AREG(1), // Number of pipeline stages for A (0, 1 or 2)
-	.BCASCREG(1), // Number of pipeline stages between B/BCIN and BCOUT (0, 1 or 2)
+	.BCASCREG(0), // Number of pipeline stages between B/BCIN and BCOUT (0, 1 or 2)
 	.BREG(1), // Number of pipeline stages for B (0, 1 or 2)
 	.CARRYINREG(0), // Number of pipeline stages for CARRYIN (0 or 1)
 	.CARRYINSELREG(0), // Number of pipeline stages for CARRYINSEL (0 or 1)
@@ -37,7 +37,7 @@ DSP48E1 #(
 	.INMODEREG(1), // Number of pipeline stages for INMODE (0 or 1)
 	.MREG(1), // Number of multiplier pipeline stages (0 or 1)
 	.OPMODEREG(1), // Number of pipeline stages for OPMODE (0 or 1)
-	.PREG(0) // Number of pipeline stages for P (0 or 1)
+	.PREG(1) // Number of pipeline stages for P (0 or 1)
 )
 DSP48E1_inst (
 	// Cascade: 30-bit (each) output: Cascade Ports
@@ -67,9 +67,9 @@ DSP48E1_inst (
 	.INMODE(INMODE), // 5-bit input: INMODE control input
 	.OPMODE(OPMODE), // 7-bit input: Operation mode input
 	// Data: 30-bit (each) input: Data Ports
-	.A(A), // 30-bit input: A data input
-	.B(B), // 18-bit input: B data input
-	.C(), // 48-bit input: C data input
+	.A(A[29:0]), // 30-bit input: A data input
+	.B(B[17:0]), // 18-bit input: B data input
+	.C(48'h000000095514), // 48-bit input: C data input
 	.CARRYIN(0), // 1-bit input: Carry input signal
 	.D(), // 25-bit input: D data input
 	// Reset/Clock Enable: 1-bit (each) input: Reset/Clock Enable Inputs
@@ -85,7 +85,7 @@ DSP48E1_inst (
 	.CED(0), // 1-bit input: Clock enable input for DREG
 	.CEINMODE(1), // 1-bit input: Clock enable input for INMODEREG
 	.CEM(1), // 1-bit input: Clock enable input for MREG
-	.CEP(0), // 1-bit input: Clock enable input for PREG
+	.CEP(1), // 1-bit input: Clock enable input for PREG
 	.RSTA(0), // 1-bit input: Reset input for AREG
 	.RSTALLCARRYIN(0), // 1-bit input: Reset input for CARRYINREG
 	.RSTALUMODE(0), // 1-bit input: Reset input for ALUMODEREG

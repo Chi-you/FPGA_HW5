@@ -1,4 +1,4 @@
-module mem1024x32(
+module BRAM_32x32(
 	input clk,
 	input rst_a,
 	input [11:0] ADDRARDADDR,
