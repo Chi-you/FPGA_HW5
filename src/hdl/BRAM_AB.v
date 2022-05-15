@@ -3,18 +3,26 @@ portA: READ/WRITE availible
 portB: READ/WRITE availible
 */
 module BRAM_AB_32x32(
-    input clk,
+    input clkA,
+    input clkB,
 	input rst_a,
-	input [11:0] ADDRARDADDR,
+	input rst_b,
+	input [11:0] a_raddr,
+	input [11:0] a_waddr,
+	input [11:0] b_raddr,
+	input [11:0] b_waddr,
 	input ENARDEN,
 	input [3:0] WEA,WEBWE,
 	input [31:0] DIADI,
 	input [47:0] DIBDI,
-	input [9:0] ADDRBWRADDR,
-	input ENBWREN,
+	input en,
 	output [31:0] DOADO,
 	output [31:0] DOBDO
 );
+
+wire ENBWREN = en;
+wire [11:0] ADDRARDADDR = (en) ? b_raddr : a_raddr;
+wire [9:0]  ADDRBWRADDR = (en) ? b_waddr : a_waddr;
 
 RAMB36E1 #(
 	// Address Collision Mode: "PERFORMANCE" or "DELAYED_WRITE"
@@ -226,11 +234,11 @@ RAMB36E1 #(
 	// Port A Address/Control Signals: 16-bit (each) input: Port A address and control signals (read port
 	// when RAM_MODE="SDP")
 	.ADDRARDADDR({1'b1, ADDRARDADDR[11:2], 5'b11111}), // 16-bit input: A port address/Read address
-	.CLKARDCLK(clk), // 1-bit input: A port clock/Read clock
+	.CLKARDCLK(clkA), // 1-bit input: A port clock/Read clock
 	.ENARDEN(ENARDEN), // 1-bit input: A port enable/Read enable
 	.REGCEAREGCE(1), // 1-bit input: A port register enable/Register enable
-	.RSTRAMARSTRAM(), // 1-bit input: A port set/reset
-	.RSTREGARSTREG(), // 1-bit input: A port register set/reset
+	.RSTRAMARSTRAM(rst_a), // 1-bit input: A port set/reset
+	.RSTREGARSTREG(rst_a), // 1-bit input: A port register set/reset
 	.WEA(WEA), // 4-bit input: A port write enable
 	// Port A Data: 32-bit (each) input: Port A data
 	.DIADI(DIADI), // 32-bit input: A port data/LSB data
@@ -238,11 +246,11 @@ RAMB36E1 #(
 	// Port B Address/Control Signals: 16-bit (each) input: Port B address and control signals (write port
 	// when RAM_MODE="SDP")
 	.ADDRBWRADDR({1'b1, ADDRBWRADDR[9:0], 5'b11111}), // 16-bit input: B port address/Write address
-	.CLKBWRCLK(clk), // 1-bit input: B port clock/Write clock
+	.CLKBWRCLK(clkB), // 1-bit input: B port clock/Write clock
 	.ENBWREN(ENBWREN), // 1-bit input: B port enable/Write enable
 	.REGCEB(1), // 1-bit input: B port register enable
-	.RSTRAMB(), // 1-bit input: B port set/reset
-	.RSTREGB(), // 1-bit input: B port register set/reset
+	.RSTRAMB(rst_b), // 1-bit input: B port set/reset
+	.RSTREGB(rst_b), // 1-bit input: B port register set/reset
 	.WEBWE({4'b0000,WEBWE}), // 8-bit input: B port write enable/Write enable
 	// Port B Data: 32-bit (each) input: Port B data
 	.DIBDI(DIBDI[31:0]), // 32-bit input: B port data/MSB data
