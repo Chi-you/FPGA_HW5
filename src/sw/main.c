@@ -1,83 +1,67 @@
 #include <stdio.h>
-#include "xil_printf.h"
+#include "xil.printf.h"
 #include "xil_io.h"
 #include "xparameters.h"
 
-int main(){
-	u32 bram1_read, addr_cmd;
+u32 get_inst(u32 bram0_raddr, u32 bram1_raddr, u32 bram1_waddr, u32 opmode_Z, u32 alumode) {
+    u32 inst = bram0_raddr;
+    inst += bram1_raddr << 5;
+    inst += bram1_waddr << 10;
+    inst += 0b10001     << 15; // inmode
+	inst += 0b0101      << 20; // {opmode_Y, opmode_X} = 0b0101 => M
+    inst += opmode_Z    << 24; // 0b011: Z => C
+    inst += alumode     << 27;
+    inst += 1           << 31;
+    return inst;
+}
 
-	//BRAM0_READ_ADDR	5'b00000
-	//BRAM1_READ_ADDR	5'b00000
-	//BRAM1_Write_ADDR	5'b00011
-	//DSP_INMODE		5'b00001
-	//DSP_OPMODE		7'b0000101
-	//DSP_ALUMODE		4'b0000
-	//Execute			1'b0
-
+int main() {
 	printf("\r\nHW 5-1 Program Start.\r\n");
+    u32 inst = 0;
+    
+    inst = get_inst(0, 2, 3, 0b000, 0b0000);   // BRAM1[3] <= BRAM0[0] * BRAM1[2]
+    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
+       
+    inst = get_inst(11, 3, 7, 0b000, 0b0000);  // BRAM1[7] <= BRAM0[11] * BRAM1[3]
+    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
+        
+    inst = get_inst(31, 7, 10, 0b011, 0b0000); // BRAM1[10] <= BRAM0[31] * BRAM1[7] + C
+    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
+    
+    inst = get_inst(1, 6, 13, 0b011, 0b0011);  // BRAM1[13] <= C - BRAM0[1] * BRAM1[6]  // Z - (X + Y + CIN)
+    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
+   
+    inst = get_inst(0, 31, 15, 0b011, 0b0001); // BRAM1[15] <= BRAM0[0] * BRAM1[31] - C - 1  // -Z + (X + Y + CIN) - 1
+    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
 
-    //A*B: alumode=0000 ; opmode:xxx0101 ; inmode=10001
-	//bram1_write=00011 ;  bram1_read=00010 ; bram0_read=00000
-	addr_cmd = 0b10000000010110001000110001000000;
-	Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, addr_cmd);			//gpio0 input inst
+    for(int i = 0; i < 32; i++) { // read
+        u32 bram1_read = Xil_In32(XPAR_AXI_GPIO_1_BASEADDR + i);
+        printf("BRAM1[%d] = 0x%x\n", i, bram1_read);
+    }
 
-	//bram1_write=00111 ;  bram1_read=00011 ; bram0_read=01011
-    addr_cmd = 0b10000000010110001001110001101011;
-    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, addr_cmd);
+    for(int i = 0; i < 32; i++){ // write
+        Xil_Out32(XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR + i, (i + 1) ^ 2); // BRAM0[i] <= (i+1)^2
+    }
+    
+    inst = get_inst(0, 2, 16, 0b000, 0b0000);  // BRAM1[16] <= BRAM0[0] * BRAM1[2]
+    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
+    
+    inst = get_inst(11, 3, 17, 0b000, 0b0000); // BRAM1[17] <= BRAM0[11] * BRAM1[3]
+    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
+    
+    inst = get_inst(31, 7, 18, 0b011, 0b0000); // BRAM1[18] <= BRAM0[31] * BRAM1[7] + C
+    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
 
-    //A*B+C: alumode=0000 ; opmode:0110101 ; inmode=10001
-	//bram1_write=01010 ;  bram1_read=00111 ; bram0_read=11111
-    addr_cmd = 0b1000001101011000101010001111111;
-    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, addr_cmd);
-	
-    //C-A*B: alumode:0011 ; opmode:0110101 ; inmode=10001
-	//bram1_write=01101 ;  bram1_read=00110 ; bram0_read=00001
-    addr_cmd = 0b10011011010110001011010011000001;
-    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, addr_cmd);
+    inst = get_inst(1, 6, 19, 0b011, 0b0011);  // BRAM1[19] <= C - BRAM0[1] * BRAM1[6]  // Z - (X + Y + CIN)
+    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
+    
+    inst = get_inst(0, 31, 20, 0b011, 0b0001); // BRAM1[20] <= BRAM0[0] * BRAM1[31] - C - 1  // -Z + (X + Y + CIN) - 1
+    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
 
-    //A*B-C-1: alumode:0001 ; opmode:0110101 ; inmode=10001
-	//bram1_write=01111 ;  bram1_read=11111 ; bram0_read=00000
-    addr_cmd = 0b10001011010110001011111111100000;
-    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, addr_cmd);
-
-	for(int i=0; i<32; i++){
-		//Read data after DSP operation
-		a_read = Xil_In32(XPAR_AXI_GPIO_1_BASEADDR + 4*i);	//gpio1 output data
-		printf("BRAM1[%d] = %d", i, a_read);
-	}
-
-	for(int i=0; i<32; i++){
-		//Write data in BRAM0
-		Xil_Out32(XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR + 4*i, (i+1)^2);
-	}
-
-    //A*B: alumode=0000 ; opmode:0000101 ; inmode=10001
-	//bram1_write=10000 ;  bram1_read=00010 ; bram0_read=00000
-    addr_cmd = 0b10000000010110001100000001000000;
-    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, addr_cmd);
-
-	//bram1_write=10001 ;  bram1_read=00011 ; bram0_read=01011
-    addr_cmd = 0b10000000010110001100010001101011;
-    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, addr_cmd);
-
-    //A*B+C: alumode=0000 ; opmode:0110101 ; inmode=10001
-	//bram1_write=10010 ;  bram1_read=00111 ; bram0_read=11111
-    addr_cmd = 0b10000011010110001100100011111111;
-    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, addr_cmd);
-	
-    //C-A*B: alumode:0011 ; opmode:0110101 ; inmode=10001
-	//bram1_write=10011 ;  bram1_read=00110 ; bram0_read=00001
-    addr_cmd = 0b10011011010110001100110011000001;
-    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, addr_cmd);
-
-    //A*B-C-1: alumode:0001 ; opmode:0110101 ; inmode=10001
-	//bram1_write=10100 ;  bram1_read=11111 ; bram0_read=00000
-    addr_cmd = 0b10001011010110001101001111100000;
-    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, addr_cmd);
-
-	for(int i=0; i<32; i++){
-		//Read data after DSP operation
-		a_read = Xil_In32(XPAR_AXI_GPIO_1_BASEADDR + 4*i);	//gpio1
-		printf("BRAM1[%d] = %d", i, a_read);
-	}
+    for(int i = 0; i < 32; i++){ // read
+        u32 bram1_read = Xil_In32(XPAR_AXI_GPIO_1_BASEADDR + i); // maybe wrong
+        printf("BRAM1[%d] = 0x%x\n", i, bram1_read);
+    }
+	printf("\r\nHW 5-1 Program Done.\r\n");
+    return 0;
 }
