@@ -1,3 +1,7 @@
+/*
+portA: READ/WRITE availible
+portB: READ availible
+*/
 module BRAM_32x32(
 	input clk,
 	input rst_a,
