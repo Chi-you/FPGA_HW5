@@ -1,5 +1,5 @@
 module controller #(
-  parameter DSPLatency = 3  // may be 3 or 4, can tune later on by modifying this
+  parameter Delay = 3  
 ) (
   input  clk,
   input  rst_n,
@@ -27,7 +27,6 @@ module controller #(
   parameter WRITE = 3;
   parameter DONE  = 4;
   
-
   reg [30:0] inst_reg;
   reg [2:0] cs, ns;
   reg [1:0] cnt;
@@ -56,7 +55,7 @@ module controller #(
     case (cs)
       IDLE:  ns = (start) ? (inst[31] ? READ : DONE) : IDLE;
       READ:  ns = EXE;
-      EXE:   ns = (cnt == DSPLatency - 1) ? WRITE : EXE;
+      EXE:   ns = (cnt == Delay - 1) ? WRITE : EXE;
       WRITE: ns = DONE;
       DONE:  ns = IDLE;
       default: ns = 0;
@@ -68,7 +67,7 @@ module controller #(
       cnt <= 0;
     end
     if(cs == EXE) begin
-      cnt <= (cnt == DSPLatency - 1) ? 0 : cnt + 1;
+      cnt <= (cnt == Delay - 1) ? 0 : cnt + 1;
     end
   end
 
