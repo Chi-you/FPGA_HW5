@@ -30,15 +30,23 @@ int main() {
 
     inst = get_inst(11, 3, 7, 0b000, 0b0000);   // BRAM1[7] <= BRAM0[11] * BRAM1[3]
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
+
+    while(!Xil_In32(XPAR_AXI_GPIO_2_BASEADDR)); // valid
         
     inst = get_inst(31, 7, 10, 0b011, 0b0000); // BRAM1[10] <= BRAM0[31] * BRAM1[7] + C
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
+
+    while(!Xil_In32(XPAR_AXI_GPIO_2_BASEADDR)); // valid
     
     inst = get_inst(1, 6, 13, 0b011, 0b0011);  // BRAM1[13] <= C - BRAM0[1] * BRAM1[6]  // Z - (X + Y + CIN)
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
+
+    while(!Xil_In32(XPAR_AXI_GPIO_2_BASEADDR)); // valid
    
     inst = get_inst(0, 31, 15, 0b011, 0b0001); // BRAM1[15] <= BRAM0[0] * BRAM1[31] - C - 1  // -Z + (X + Y + CIN) - 1
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
+    
+    while(!Xil_In32(XPAR_AXI_GPIO_2_BASEADDR)); // valid
 
     for(int i = 0; i < 32; i++) { // read
         u32 bram1_read = Xil_In32(XPAR_AXI_BRAM_CTRL_1_S_AXI_BASEADDR + i);
@@ -48,21 +56,33 @@ int main() {
     for(int i = 0; i < 32; i++){ // write
         Xil_Out32(XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR + i, (i + 1) ^ 2); // BRAM0[i] <= (i+1)^2
     }
+
+
     
     inst = get_inst(0, 2, 16, 0b000, 0b0000);  // BRAM1[16] <= BRAM0[0] * BRAM1[2]
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
     
+    while(!Xil_In32(XPAR_AXI_GPIO_2_BASEADDR)); // valid
+
     inst = get_inst(11, 3, 17, 0b000, 0b0000); // BRAM1[17] <= BRAM0[11] * BRAM1[3]
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
     
+    while(!Xil_In32(XPAR_AXI_GPIO_2_BASEADDR)); // valid
+
     inst = get_inst(31, 7, 18, 0b011, 0b0000); // BRAM1[18] <= BRAM0[31] * BRAM1[7] + C
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
 
+    while(!Xil_In32(XPAR_AXI_GPIO_2_BASEADDR)); // valid
+
     inst = get_inst(1, 6, 19, 0b011, 0b0011);  // BRAM1[19] <= C - BRAM0[1] * BRAM1[6]  // Z - (X + Y + CIN)
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
-    
+
+    while(!Xil_In32(XPAR_AXI_GPIO_2_BASEADDR)); // valid
+
     inst = get_inst(0, 31, 20, 0b011, 0b0001); // BRAM1[20] <= BRAM0[0] * BRAM1[31] - C - 1  // -Z + (X + Y + CIN) - 1
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR, inst);
+
+    while(!Xil_In32(XPAR_AXI_GPIO_2_BASEADDR)); // valid
 
     for(int i = 0; i < 32; i++){ // read
         u32 bram1_read = Xil_In32(XPAR_AXI_BRAM_CTRL_1_S_AXI_BASEADDR + i); 
