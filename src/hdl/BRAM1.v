@@ -1,6 +1,6 @@
 module BRAM1(
     input clk,
-	input rst_a,
+	//input rst_a,
 	input [11:0] ARADDR,
 	input [11:0] AWRADDR,
 	input en_a,
@@ -24,8 +24,8 @@ RAMB36E1 #(
 	// Collision check: Values ("ALL", "WARNING_ONLY", "GENERATE_X_ONLY" or "NONE")
 	.SIM_COLLISION_CHECK("ALL"),
 	// DOA_REG, DOB_REG: Optional output register (0 or 1)
-	.DOA_REG(1),
-	.DOB_REG(1),
+	.DOA_REG(0),
+	.DOB_REG(0),
 	.EN_ECC_READ("FALSE"), // Enable ECC decoder,
 	// FALSE, TRUE
 	.EN_ECC_WRITE("FALSE"), // Enable ECC encoder,
@@ -227,10 +227,10 @@ RAMB36E1 #(
 	.INJECTSBITERR(), // 1-bit input: Inject a single bit error
 	// Port A Address/Control Signals: 16-bit (each) input: Port A address and control signals (read port
 	// when RAM_MODE="SDP")
-	.ADDRARDADDR({1'b1, ADDRARDADDR[11:2], 5'b11111}), // 16-bit input: A port address
+	.ADDRARDADDR({1'b0, ADDRARDADDR[11:0], 3'b000}), // 16-bit input: A port address
 	.CLKARDCLK(clk), // 1-bit input: A port clock/Read clock
 	.ENARDEN(en_a), // 1-bit input: A port enable
-	.REGCEAREGCE(1), // 1-bit input: A port register enable/Register enable
+	.REGCEAREGCE(en_a), // 1-bit input: A port register enable/Register enable
 	.RSTRAMARSTRAM(), // 1-bit input: A port set/reset
 	.RSTREGARSTREG(), // 1-bit input: A port register set/reset
 	.WEA(WEA), // 4-bit input: A port write enable
@@ -239,15 +239,15 @@ RAMB36E1 #(
 	.DIPADIP(), // 4-bit input: A port parity/LSB parity
 	// Port B Address/Control Signals: 16-bit (each) input: Port B address and control signals (write port
 	// when RAM_MODE="SDP")
-	.ADDRBWRADDR({1'b1, ADDRBWRADDR[9:0], 5'b11111}), // 16-bit input: B port address
+	.ADDRBWRADDR({1'b0, ADDRBWRADDR[9:0], 5'b00000}), // 16-bit input: B port address
 	.CLKBWRCLK(clk), // 1-bit input: B port clock/Write clock
 	.ENBWREN(en_b), // 1-bit input: B port enable
-	.REGCEB(1), // 1-bit input: B port register enable
+	.REGCEB(en_b), // 1-bit input: B port register enable
 	.RSTRAMB(), // 1-bit input: B port set/reset
 	.RSTREGB(), // 1-bit input: B port register set/reset
 	.WEBWE({4'b0000,WEBWE}), // 8-bit input: B port write enable/Write enable
 	// Port B Data: 32-bit (each) input: Port B data
-	.DIBDI(DIBDI[31:0]), // 32-bit input: B port data/MSB data
+	.DIBDI(DIBDI), // 32-bit input: B port data/MSB data
 	.DIPBDIP() // 4-bit input: B port parity/MSB parity
 );
 // End of RAMB36E1_inst instantiation

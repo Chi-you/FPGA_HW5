@@ -58,7 +58,7 @@ DSP48E1_inst (
 	.ACIN(), // 30-bit input: A cascade data input
 	.BCIN(), // 18-bit input: B cascade input
 	.CARRYCASCIN(), // 1-bit input: Cascade carry input
-	.MULTSIGNIN(0), // 1-bit input: Multiplier sign input
+	.MULTSIGNIN(1), // 1-bit input: Multiplier sign input
 	.PCIN(0), // 48-bit input: P cascade input
 	// Control: 4-bit (each) input: Control Inputs/Status Bits
 	.ALUMODE(ALUMODE), // 4-bit input: ALU control input
