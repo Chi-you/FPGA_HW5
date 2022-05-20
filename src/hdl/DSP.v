@@ -6,8 +6,12 @@ module DSP(
 	input [3:0] ALUMODE,
 	input [6:0] OPMODE,
 	output [47:0] P
-	
 );
+wire [47:0] tmpout;
+wire fabric1 = A[0] & B[0];
+wire [23:0] fabric2 = B[0] ? A[24:1] : 0;
+wire [46:0] tmp2 = tmpout[46:0] + {{23{fabric2[23]}}, fabric2};
+assign P = {tmp2, fabric1};
 
 DSP48E1 #(
 	// Feature Control Attributes: Data Path Selection
@@ -53,12 +57,12 @@ DSP48E1_inst (
 	.UNDERFLOW(), // 1-bit output: Underflow in add/acc output
 	// Data: 4-bit (each) output: Data Ports
 	.CARRYOUT(), // 4-bit output: Carry output
-	.P(P), // 48-bit output: Primary data output
+	.P(tmpout), // 48-bit output: Primary data output
 	// Cascade: 30-bit (each) input: Cascade Ports
 	.ACIN(), // 30-bit input: A cascade data input
 	.BCIN(), // 18-bit input: B cascade input
 	.CARRYCASCIN(), // 1-bit input: Cascade carry input
-	.MULTSIGNIN(1), // 1-bit input: Multiplier sign input
+	.MULTSIGNIN(0), // 1-bit input: Multiplier sign input
 	.PCIN(0), // 48-bit input: P cascade input
 	// Control: 4-bit (each) input: Control Inputs/Status Bits
 	.ALUMODE(ALUMODE), // 4-bit input: ALU control input
@@ -67,8 +71,8 @@ DSP48E1_inst (
 	.INMODE(INMODE), // 5-bit input: INMODE control input
 	.OPMODE(OPMODE), // 7-bit input: Operation mode input
 	// Data: 30-bit (each) input: Data Ports
-	.A(A[29:0]), // 30-bit input: A data input
-	.B(B[17:0]), // 18-bit input: B data input
+	.A(A[24:0]), // 30-bit input: A data input
+	.B({B[18:1]}), // 18-bit input: B data input
 	.C(48'h000000095514), // 48-bit input: C data input
 	.CARRYIN(0), // 1-bit input: Carry input signal
 	.D(), // 25-bit input: D data input
