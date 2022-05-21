@@ -247,7 +247,7 @@ RAMB36E1 #(
 	.RSTREGB(), // 1-bit input: B port register set/reset
 	.WEBWE({4'b0000,WEBWE}), // 8-bit input: B port write enable/Write enable
 	// Port B Data: 32-bit (each) input: Port B data
-	.DIBDI(DIBDI), // 32-bit input: B port data/MSB data
+	.DIBDI(DIBDI[31:0]), // 32-bit input: B port data/MSB data
 	.DIPBDIP() // 4-bit input: B port parity/MSB parity
 );
 // End of RAMB36E1_inst instantiation
