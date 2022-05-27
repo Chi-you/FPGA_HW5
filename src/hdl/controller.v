@@ -63,8 +63,9 @@ module controller #(
     if(!rst_n) begin
       cnt <= 0;
     end
-    if(cs == EXE) begin
-      cnt <= (cnt == Delay - 1) ? 0 : cnt + 1;
+    else begin
+      if(cs == EXE) 
+        cnt <= (cnt == Delay - 1) ? 0 : cnt + 1;
     end
   end
 
