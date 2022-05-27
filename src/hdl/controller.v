@@ -1,13 +1,11 @@
 module controller #(
-  parameter Delay = 3  
+  parameter Delay = 3
 ) (
   input  clk,
   input  rst_n,
-  input  start,
-  //output busy,
+  input  en,
   output valid,
 
-  // Input instruction
   input [31:0] inst,
 
   output reg [9:0] bram0_raddrb,
@@ -31,7 +29,6 @@ module controller #(
   reg [2:0] cs, ns;
   reg [1:0] cnt;
 
-  //assign busy  = cs != IDLE;
   assign valid = cs == DONE;
 
   always @(posedge clk) begin
@@ -39,7 +36,7 @@ module controller #(
       inst_reg <= 31'd0;
     end 
     else begin
-      if (cs == IDLE && start)
+      if (cs == IDLE && en)
         inst_reg <= inst[30:0];
     end
   end
@@ -53,11 +50,11 @@ module controller #(
 
   always @(*) begin
     case (cs)
-      IDLE:  ns = (start) ? (inst[31] ? READ : DONE) : IDLE;
+      IDLE:  ns = (en) ? (inst[31] ? READ : DONE) : IDLE;
       READ:  ns = EXE;
       EXE:   ns = (cnt == Delay - 1) ? WRITE : EXE;
       WRITE: ns = DONE;
-      DONE:  ns = IDLE;
+      DONE:  ns = (!en) ? IDLE : DONE;
       default: ns = 0;
     endcase
   end
@@ -102,7 +99,7 @@ module controller #(
     end
   end
 
-  // DSP
+  // DSP decode
   always @(*) begin
     if (cs == EXE) begin
       dsp_inmode  = inst_reg[19:15];
